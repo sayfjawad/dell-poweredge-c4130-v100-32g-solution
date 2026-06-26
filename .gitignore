@@ -1,0 +1,14 @@
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+
+# Build output — payload.so contains a hardcoded callback IP, never commit it
+payload.so
+
+# iDRAC flash backup — large binary, keep locally only
+mmcblk0p9_orig.bin
+*.bin.bak
+
+# The PoC exploit — clone separately per exploit/README.md
+exploit/PoC-CVE-2018-1207/
