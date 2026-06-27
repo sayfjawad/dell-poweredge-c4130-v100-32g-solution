@@ -50,9 +50,22 @@ There are three levels of fix, in increasing permanence:
 | Semi-persistent | `writecfg` + bind-mount of patched `platcfgfld.txt` | ✗ (iDRAC reboots with server) | ✗ |
 | **Permanent** | Patch `/dev/mmcblk0p9` squashfs on iDRAC | ✓ | ✓ |
 
-The bind-mount approach **was successfully applied in a previous session** — the GPUs unthrottled and `BIND_ACTIVE` was confirmed — but the iDRAC restarted together with the GracefulRestart server reboot and the patch was lost.
+The bind-mount approach **was successfully applied** — the GPUs unthrottled and `BIND_ACTIVE` was confirmed — but the iDRAC restarted together with the GracefulRestart server reboot and the patch was lost.
 
 **Target: the permanent `/dev/mmcblk0p9` patch.**
+
+### Potential no-exploit path (test first)
+
+IPMI raw command `0x17` (NetFn `0x30`) may be the host-side equivalent of `writecfg`. When the server OS is running it returns "not supported in present state" — suggesting it needs the OS to be **off**. Try with OS shut down before falling back to the CVE exploit:
+
+```bash
+# Shut down the OS first, then (with iDRAC still running):
+sudo ipmitool raw 0x30 0x17 \
+  0x41 0x4E \           # group 20033 LE
+  0x5A 0x01 \           # record 90, variant 1
+  0x05 0x05 0xDE 0x10 0xB5 0x1D 0xDE 0x10 0x49 0x12 0xB8 0x0B 0xB8 0x0B 0x01 0xFF 0x48
+# Then power on and check nvidia-smi
+```
 
 ---
 
